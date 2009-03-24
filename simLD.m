@@ -32,6 +32,9 @@ SISTEMA_LIVRE   = 0;
 SISTEMA_OCUPADO = 1;
 
 % Variaveis do sistema
+CapacidadeDaLigacao = CL * 1000 * 1000;   % Capacidade da ligação em bits por segundo 
+TamanhoDaFilaDeEspera = TFE * 8;          % Tamanho da fila de espera em bits
+TempoMedioChegadaPacotes = 1 / TCP;
 
 Estado = SISTEMA_LIVRE;
 
@@ -42,8 +45,8 @@ PacotesPerdidos = 0;
 Atrasos      = 0;
 AtrasoMaximo = 0;
 
-OcupacaoFila = 0;
-IOcupacao    = 0;
+OcupacaoFila = 0;   % Ocupação da fila em *bits*
+IOcupacao    = 0;   % Integral da ocupação da fila de espera em *bits*
 
 Instante = 0;   % Instante de tempo em que o pacote 
                 % entra no sistema para ser transmitido
@@ -58,15 +61,59 @@ Partida = Inf;
 
 
 % -- Ciclo da Simulacao -- %
-while ( TotalPacotes < NP )
+while ( TotalPacotes < NP ),
 
   if ( Chegada < Partida )
     % -- Temos uma chegada -- %
     TempoUltimoInstante = Tempo;
+    Tempo = Chegada;
     %TotalFila =
+    IOcupacao = IOcupacao + OcupacaoFila * (Tempo - TempoUltimoInstante);
+    TamanhoPacote = exprnd( TMP ) * 8;  % Tamanho do pacote em bits
+    TotalPacotes = TotalPacotes + 1;
+    Chegada = Tempo + exprnd( TempoMedioChegadaPacotes );   % Agendar próxima chegada 
+    
+    if ( Estado == SISTEMA_LIVRE )
+      Estado = SISTEMA_OCUPADO;
+      Instante = Tempo;
+      Partida  = Tempo + (CapacidadeDaLigacao / TamanhoPacote );
+    else
+      if ( (TamanhoPacote + OcupacaoFila) > TamanhoDaFilaDeEspera  )
+        PacotesPerdidos = PacotesPerdidos + 1;
+      else
+        FilaDeEspera = [ FilaDeEspera; [ Tempo, TamanhoPacote ]  ];
+        OcupacaoFila = OcupacaoFila + TamanhoPacote;
+      end;
+    end;
+    
+  else % else ( Chegada < Partida )
+    % -- Temos uma Partida -- %
+    TempoUltimoInstante = Tempo;
+    Tempo = Partida;
+    IOcupacao = IOcupacao + OcupacaoFila * (Tempo - TempoUltimoInstante);
+    
+    % Actualizar Atrasos e Atraso Máximo
+    AtrasoActual = ( Tempo - Instante );
+    Atrasos = Atrasos + AtrasoActual;
+    
+    if ( AtrasoMaximo < AtrasoActual )
+      AtrasoMaximo = AtrasoActual;
+      
+    PacotesAceites = PacotesAceites + 1;
+    if ( PacotesAceites >= NP )
+      break;  % Sair da Simulação
+    
+    Partida = Inf;  % Retirar partida da Lista de Eventos
+    if ( OcupacaoFila > 0 )
+      [ Instante, TamanhoPacote ] = FilaDeEspera(1);
+      Partida  = Tempo + (CapacidadeDaLigacao / TamanhoPacote );
+      FilaDeEspera = FilaDeEspera(2:length(FilaDeEspera));
+      
+      OcupacaoFila = OcupacaoFila - TamanhoPacote;
+    else
+      Estado = SISTEMA_LIVRE;
+    end;
 
-    IOcupacao = IOcupacao + 
-
-  end;
+  end; % end ( Chegada < Partida )
 
 end;
