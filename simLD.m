@@ -38,7 +38,7 @@ TempoMedioChegadaPacotes = 1 / TCP;
 
 Estado = SISTEMA_LIVRE;
 
-TotalPacotes    = 0;
+TotalPacotes    = 0; % FUTURE USE ??
 PacotesAceites  = 0;
 PacotesPerdidos = 0;
 
@@ -61,7 +61,7 @@ Partida = Inf;
 
 
 % -- Ciclo da Simulacao -- %
-while ( TotalPacotes < NP ),
+while ( 1 ),
 
   if ( Chegada < Partida )
     % -- Temos uma chegada -- %
@@ -98,10 +98,12 @@ while ( TotalPacotes < NP ),
     
     if ( AtrasoMaximo < AtrasoActual )
       AtrasoMaximo = AtrasoActual;
+    end;
       
     PacotesAceites = PacotesAceites + 1;
     if ( PacotesAceites >= NP )
       break;  % Sair da Simulação
+    end;
     
     Partida = Inf;  % Retirar partida da Lista de Eventos
     if ( OcupacaoFila > 0 )
@@ -117,3 +119,8 @@ while ( TotalPacotes < NP ),
   end; % end ( Chegada < Partida )
 
 end;
+
+TPD = PacotesPerdidos / ( PacotesAceites + PacotesPerdidos) ;
+AMP = Atrasos / PacotesAceites;
+AMaxP = AtrasoMedio;
+OMF = IOcupacao;
