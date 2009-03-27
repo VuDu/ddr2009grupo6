@@ -67,8 +67,9 @@ while ( 1 ),
     % -- Temos uma chegada -- %
     TempoUltimoInstante = Tempo;
     Tempo = Chegada;
-    %TotalFila =
+
     IOcupacao = IOcupacao + OcupacaoFila * (Tempo - TempoUltimoInstante);
+    % Será que do funciona em Matlab ?? TODO: Verificar isso
     do,
         TamanhoPacote = round( exprnd( TMP ) );  % Tamanho do pacote em bytes
     until ( TamanhoPacote > 48 && TamanhoPacote < 1500 );
