@@ -12,11 +12,11 @@
 % @parametros
 %
 %     REP : Número de repetições da simulação
-%     TCP : Taxa de Chegada de Pacotes ( mu )
+%     TCP : Taxa de Chegada de Pacotes ( lambda )
 %
 %     TMP : Tamanho Medio do Pacote ( bytes )
-%     CL  : Capacidade da Ligacao ( em Mbps )
-%     TFE : Tamanho da Fila de Espera ( em bytes )
+%     CL  : Capacidade da Ligacao ( Mbps )
+%     TFE : Tamanho da Fila de Espera ( bytes )
 %     NP  : Numero de pacotes em que se baseia o criterio de paragem
 %
 % @saida

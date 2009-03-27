@@ -126,4 +126,4 @@ end;
 TPD = PacotesPerdidos / ( PacotesAceites + PacotesPerdidos);
 AMP = Atrasos / PacotesAceites;
 AMaxP = AtrasoMaximo;
-OMF = IOcupacao;
+OMF = IOcupacao / Tempo;
