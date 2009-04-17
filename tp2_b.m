@@ -24,14 +24,14 @@
 %     NMF   : Número médio de pacotes na fila de espera
 %%
 
-function tp2_b( TCP, Rep )
+function tp2_b( TCP, TFE, Rep )
 
 tam_pacote = 600;    % ( bytes )
 lambda = TCP;
 mu = (( 2 * 1000 * 1000 ) / 8 ) / tam_pacote;   % ( pacotes/seg )
 
 
-tp2_a( TCP, Rep );
+tp2_a( TCP, TFE, Rep );
 
 [ L, W, LQ, WQ ] = mm1( mu, lambda );
 
