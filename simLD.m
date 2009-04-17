@@ -26,7 +26,7 @@
 %     AMaxP : Atraso maximo de pacotes
 %     OMF   : Ocupacao media da fila de espera
 %%
-function [TPD, AMP, AMaxP, OMF] = simLD( TCP, TCPV, TMP, TMPV, CL, TFE, NP )
+function [TPD, TPDDados, TPDVoIP, AMP, AMPDados, AMPVoIP, AMaxP, AMaxPDados, AMaxPVoIP, OMF] = simLD( TCP, TCPV, TMP, TMPV, CL, TFE, NP )
 
 % Constantes do sistema
 
@@ -104,7 +104,7 @@ while ( 1 ),
 
       TotalPacotes = TotalPacotes + 1;
       % Calcula a proxima chegada de chamada
-      ProximaChegada = Tempo + exprnd( TMP );
+      ProximaChegada = Tempo + exprnd( TempoMedioChegadaPacotes );
       % Remover a chamada actual e adicionar a proxima chamada ordenadamente
       Chegada = [ Chegada(2:end,:) ; [ ProximaChegada, TYPE_DATA] ];
       [s, i] = sort( Chegada(:,1) );
