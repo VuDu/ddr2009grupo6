@@ -35,17 +35,17 @@ CL  = 2;
 %TFE = 1000000;
 NP  = 1000;
 
-TPD   = 1 : Rep;
-AMP   = 1 : Rep;
-AMaxP = 1 : Rep;
+TPDDados   = 1 : Rep;
+TPDVoIP    = 1 : Rep;
+AMPDados   = 1 : Rep;
+AMPVoIP    = 1 : Rep;
+AMaxPDados = 1 : Rep;
+AMaxPVoIP  = 1 : Rep;
 OMF   = 1 : Rep;
 
 for i = 1:Rep,
-  [ TPD(i), TPDDados(i), TPDVoIP(i), AMP(i), AMPDados(i), AMPVoIP(i), AMaxP(i), AMaxPDados(i), AMaxPVoIP(i), OMF(i) ] = simLD( TCPD, TCPV, TMPD, TMPV, CL, TFE, NP );
+  [ TPDDados(i), TPDVoIP(i), AMPDados(i), AMPVoIP(i), AMaxPDados(i), AMaxPVoIP(i), OMF(i) ] = simLD( TCPD, TCPV, TMPD, TMPV, CL, TFE, NP );
 end
-
-AMP   = AMP * 1000;      % seg -> ms
-AMaxP = AMaxP * 1000;    % seg -> ms
 
 AMPDados   = AMPDados * 1000;      % seg -> ms
 AMaxPDados = AMaxPDados * 1000;    % seg -> ms
@@ -55,11 +55,6 @@ AMaxPVoIP = AMaxPVoIP * 1000;    % seg -> ms
 
 
 %     TPD   : Taxa de perda de pacotes
-TPDMean   = mean( TPD )
-TPDVar    = var( TPD )
-z =  norminv(0.95) * sqrt(TPDVar / Rep);
-IntTPD = [ TPDMean - z , TPDMean + z ]
-
 TPDMeanDados   = mean( TPDDados )
 TPDVarDados    = var( TPDDados )
 z =  norminv(0.95) * sqrt(TPDVarDados / Rep);
@@ -72,11 +67,6 @@ IntTPDVoIP = [ TPDMeanVoIP - z , TPDMeanVoIP + z ]
 
 
 %     AMP   : Atraso medio de pacotes
-AMPMean   = mean( AMP )
-AMPVar    = var( AMP )
-z =  norminv(0.95) * sqrt(AMPVar / Rep);
-IntAMP = [ AMPMean - z , AMPMean + z ]
-
 AMPMeanDados   = mean( AMPDados )
 AMPVarDados    = var( AMPDados )
 z =  norminv(0.95) * sqrt(AMPVarDados / Rep);
@@ -89,11 +79,6 @@ IntAMPVoIP = [ AMPMeanVoIP - z , AMPMeanVoIP + z ]
 
 
 %     AMaxP : Atraso maximo de pacotes
-AMaxPMean = mean( AMaxP )
-AMaxPVar  = var( AMaxP )
-z =  norminv(0.95) * sqrt(AMaxPVar / Rep);
-IntAMax = [ AMaxPMean - z , AMaxPMean + z ]
-
 AMaxPMeanDados = mean( AMaxPDados )
 AMaxPVarDados  = var( AMaxPDados )
 z =  norminv(0.95) * sqrt(AMaxPVarDados / Rep);

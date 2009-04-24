@@ -26,7 +26,7 @@
 %     AMaxP : Atraso maximo de pacotes
 %     OMF   : Ocupacao media da fila de espera
 %%
-function [TPD, TPDDados, TPDVoIP, AMP, AMPDados, AMPVoIP, AMaxP, AMaxPDados, AMaxPVoIP, OMF] = simLD( TCP, TCPV, TMP, TMPV, CL, TFE, NP )
+function [ TPDDados, TPDVoIP, AMPDados, AMPVoIP, AMaxPDados, AMaxPVoIP, OMF] = simLD( TCP, TCPV, TMP, TMPV, CL, TFE, NP )
 
 % Constantes do sistema
 
@@ -100,9 +100,8 @@ while ( 1 ),
       % -- Pacote do tipo de dados -- %
       do,
       TamanhoPacote = round( exprnd( TMP ) );  % Tamanho do pacote em bytes
-      until ( TamanhoPacote > 48 && TamanhoPacote < 1500 );
+      until ( TamanhoPacote >= 48 && TamanhoPacote <= 1500 );
 
-      TotalPacotes = TotalPacotes + 1;
       % Calcula a proxima chegada de chamada
       ProximaChegada = Tempo + exprnd( TempoMedioChegadaPacotes );
       % Remover a chamada actual e adicionar a proxima chamada ordenadamente
@@ -120,7 +119,7 @@ while ( 1 ),
         Partida = Partida(i,:);
       else
         if ( (TamanhoPacote + OcupacaoFila) > TamanhoDaFilaDeEspera  )
-          PacotesPerdidos = PacotesPerdidos + 1;
+          %PacotesPerdidos = PacotesPerdidos + 1;
           PacotesPerdidosDados = PacotesPerdidosDados + 1;
         else
           FilaDeEspera = [ FilaDeEspera ; [ Tempo, TamanhoPacote, TYPE_DATA ]  ];
@@ -132,7 +131,6 @@ while ( 1 ),
       % -- Pacote do tipo VoIP -- %
       TamanhoPacote = round(rand * (220 - 180) + 180);
       
-      TotalPacotes = TotalPacotes + 1;
       % Calcula a proxima chegada de chamada
       ProximaChegada = Tempo + ( (rand + 0.5) * TempoMedioChegadaPacotesVoIP );
       % Remover a chamada actual e adicionar a proxima chamada ordenadamente
@@ -150,7 +148,6 @@ while ( 1 ),
         Partida = Partida(i,:);
       else
         if ( (TamanhoPacote + OcupacaoFila) > TamanhoDaFilaDeEspera  )
-          PacotesPerdidos = PacotesPerdidos + 1;
           PacotesPerdidosVoIP = PacotesPerdidosVoIP + 1;
         else
           FilaDeEspera = [ FilaDeEspera ; [ Tempo, TamanhoPacote, TYPE_VOIP ]  ];
@@ -166,16 +163,7 @@ while ( 1 ),
     Tempo = Partida(1,1);
     Type = Partida(1,2);
     IOcupacao = IOcupacao + OcupacaoFila * (Tempo - TempoUltimoInstante);
-
-    % Actualizar Atrasos e Atraso Máximo
-    AtrasoActual = ( Tempo - Instante );
-    Atrasos = Atrasos + AtrasoActual;
     
-    if ( AtrasoMaximo < AtrasoActual )
-      AtrasoMaximo = AtrasoActual;
-    end;
-      
-    PacotesAceites = PacotesAceites + 1;
     
     if ( Type == TYPE_DATA )
       % Actualizar Atrasos e Atraso Máximo
@@ -199,7 +187,7 @@ while ( 1 ),
       PacotesAceitesVoIP = PacotesAceitesVoIP + 1;
     end;
     
-    if ( PacotesAceites >= NP )
+    if ( ( PacotesAceitesDados + PacotesAceitesVoIP ) >= NP )
       break;  % Sair da Simulação
     end;
     Partida = Partida(2:end,:) ; % Retirar partida da Lista de Eventos
@@ -218,10 +206,6 @@ while ( 1 ),
   end; % end ( Chegada < Partida )
 
 end;
-
-TPD = PacotesPerdidos / ( PacotesAceites + PacotesPerdidos);
-AMP = Atrasos / PacotesAceites;
-AMaxP = AtrasoMaximo;
 
 TPDDados = PacotesPerdidosDados / ( PacotesAceitesDados + PacotesPerdidosDados);
 AMPDados = AtrasoDados / PacotesAceitesDados;
