@@ -31,7 +31,6 @@
 
 function tp2_e( TCPD, TCPV, TMPD, TMPV, TFE, Rep )
 
-TMP = 600;
 CL  = 2;
 %TFE = 1000000;
 NP  = 1000;

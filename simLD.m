@@ -92,7 +92,7 @@ while ( 1 ),
   if ( Chegada(1,1) < Partida(1,1) )
     % -- Temos uma chegada -- %
     TempoUltimoInstante = Tempo;
-    Tempo = Chegada;
+    Tempo = Chegada(1,1);
     %TotalFila =
     IOcupacao = IOcupacao + OcupacaoFila * (Tempo - TempoUltimoInstante);
     
@@ -106,7 +106,7 @@ while ( 1 ),
       % Calcula a proxima chegada de chamada
       ProximaChegada = Tempo + exprnd( TempoMedioChegadaPacotes );
       % Remover a chamada actual e adicionar a proxima chamada ordenadamente
-      Chegada = [ Chegada(2:end,:) ; [ ProximaChegada, TYPE_DATA] ];
+      Chegada = [ Chegada(2:end,:) ; [ ProximaChegada, TYPE_DATA ] ];
       [s, i] = sort( Chegada(:,1) );
       Chegada = Chegada(i,:);
 
@@ -130,7 +130,7 @@ while ( 1 ),
       
     else % if ( chegada == TYPE_DATA )
       % -- Pacote do tipo VoIP -- %
-      TamanhoPacote = rand * (220 - 180) + 180;
+      TamanhoPacote = round(rand * (220 - 180) + 180);
       
       TotalPacotes = TotalPacotes + 1;
       % Calcula a proxima chegada de chamada
