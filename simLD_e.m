@@ -151,6 +151,7 @@ while ( 1 ),
           PacotesPerdidosVoIP = PacotesPerdidosVoIP + 1;
         else
           FilaDeEspera = [ FilaDeEspera ; [ Tempo, TamanhoPacote, TYPE_VOIP ]  ];
+          FilaDeEspera = sortrows( sortrows(FilaDeEspera, 1) , -3 );
           OcupacaoFila = OcupacaoFila + TamanhoPacote;
         end;
       end;
