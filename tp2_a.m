@@ -27,11 +27,11 @@
 %     OMF   : Ocupacao media da fila de espera ( bytes )
 %%
 
-function tp2_a( TCP, Rep )
+function tp2_a( TCP, TFE, Rep )
 
 TMP = 600;
 CL  = 2;
-TFE = 1000000;
+%TFE = 1000000;
 NP  = 1000;
 
 TPD   = 1 : Rep;
