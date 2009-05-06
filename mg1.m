@@ -22,10 +22,12 @@
 %     LQ     : Número médio de clientes na fila de espera
 %%
 
-function [ W ] = mg1( mu, lambda )
+function [ L, W, LQ, WQ ] = mg1( mu, lambda )
 
 E1 = 1 / mu;
 E2 = 1 / (mu*mu);
 
-W = (lambda * E2) / (2*(1-lambda*E1))  + E1;
-
+WQ = (lambda * E2) / (2*(1-lambda*E1));
+LQ = lambda*WQ;
+W = WQ + E1;
+L = lambda*W;
