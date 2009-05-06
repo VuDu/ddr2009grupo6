@@ -44,7 +44,7 @@ AMaxPVoIP  = 1 : Rep;
 OMF   = 1 : Rep;
 
 for i = 1:Rep,
-  [ TPDDados(i), TPDVoIP(i), AMPDados(i), AMPVoIP(i), AMaxPDados(i), AMaxPVoIP(i), OMF(i) ] = simLD( TCPD, TCPV, TMPD, TMPV, CL, TFE, NP );
+  [ TPDDados(i), TPDVoIP(i), AMPDados(i), AMPVoIP(i), AMaxPDados(i), AMaxPVoIP(i), OMF(i) ] = simLD_e( TCPD, TCPV, TMPD, TMPV, CL, TFE, NP );
 end
 
 AMPDados   = AMPDados * 1000;      % seg -> ms
@@ -95,13 +95,13 @@ OMFVar    = var( OMF )
 z =  norminv(0.95) * sqrt(OMFVar / Rep);
 IntOMF = [ OMFMean - z , OMFMean + z ]
 
-OMFMeanDados   = mean( OMFDados )
-OMFVarDados    = var( OMFDados )
-z =  norminv(0.95) * sqrt(OMFVarDados / Rep);
-IntOMFDados = [ OMFMeanDados - z , OMFMeanDados + z ]
+%OMFMeanDados   = mean( OMFDados )
+%OMFVarDados    = var( OMFDados )
+%z =  norminv(0.95) * sqrt(OMFVarDados / Rep);
+%IntOMFDados = [ OMFMeanDados - z , OMFMeanDados + z ]
 
-OMFMeanVoIP   = mean( OMFVoIP )
-OMFVarVoIP    = var( OMFVoIP )
-z =  norminv(0.95) * sqrt(OMFVarVoIP / RepVoIP);
-IntOMFVoIP = [ OMFMeanVoIP - z , OMFMeanVoIP + z ]
+%OMFMeanVoIP   = mean( OMFVoIP )
+%OMFVarVoIP    = var( OMFVoIP )
+%z =  norminv(0.95) * sqrt(OMFVarVoIP / RepVoIP);
+%IntOMFVoIP = [ OMFMeanVoIP - z , OMFMeanVoIP + z ]
 

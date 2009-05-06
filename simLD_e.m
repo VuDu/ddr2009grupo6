@@ -26,7 +26,7 @@
 %     AMaxP : Atraso maximo de pacotes
 %     OMF   : Ocupacao media da fila de espera
 %%
-function [ TPDDados, TPDVoIP, AMPDados, AMPVoIP, AMaxPDados, AMaxPVoIP, OMF] = simLD( TCP, TCPV, TMP, TMPV, CL, TFE, NP )
+function [ TPDDados, TPDVoIP, AMPDados, AMPVoIP, AMaxPDados, AMaxPVoIP, OMF] = simLD_e( TCP, TCPV, TMP, TMPV, CL, TFE, NP )
 
 % Constantes do sistema
 
