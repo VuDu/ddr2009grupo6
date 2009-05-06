@@ -1,10 +1,9 @@
-
+%
 %   pt.ua.deti.ddr.tp2
 % 
 %   DDR - Trabalho pratico #2
 %
 %   Simulador de Ligacao de Dados.
-%
 %
 
 %%
@@ -21,12 +20,14 @@
 %     CL  : Capacidade da Ligacao ( Mbps )
 %     NP  : Numero de pacotes em que se baseia o criterio de paragem
 %
+
 % @saida
 %
 %     TPD   : Taxa de perda de pacotes
 %     AMP   : Atraso medio de pacotes ( ms )
 %     AMaxP : Atraso maximo de pacotes ( ms )
 %     OMF   : Ocupacao media da fila de espera ( bytes )
+
 %%
 
 function tp2_e( TCPD, TCPV, TMPD, TMPV, TFE, Rep )
@@ -94,14 +95,4 @@ OMFMean   = mean( OMF )
 OMFVar    = var( OMF )
 z =  norminv(0.95) * sqrt(OMFVar / Rep);
 IntOMF = [ OMFMean - z , OMFMean + z ]
-
-OMFMeanDados   = mean( OMFDados )
-OMFVarDados    = var( OMFDados )
-z =  norminv(0.95) * sqrt(OMFVarDados / Rep);
-IntOMFDados = [ OMFMeanDados - z , OMFMeanDados + z ]
-
-OMFMeanVoIP   = mean( OMFVoIP )
-OMFVarVoIP    = var( OMFVoIP )
-z =  norminv(0.95) * sqrt(OMFVarVoIP / RepVoIP);
-IntOMFVoIP = [ OMFMeanVoIP - z , OMFMeanVoIP + z ]
 
