@@ -11,8 +11,9 @@
 % 
 % @parametros
 %
-%     mu     : Taxa de atendimento dos clientes no sistema
-%     lambda : Taxa de chegada de clientes ao sistema
+%     lambda : Taxa de chegada de pacotes 
+%     TMP    : Tamanho médio do pacote
+%     C      : Capacidade da ligação em Mb
 %
 % @saida
 %
@@ -22,12 +23,33 @@
 %     LQ     : Número médio de clientes na fila de espera
 %%
 
-function [ L, W, LQ, WQ ] = mg1( mu, lambda )
+function [ L, W, LQ, WQ ] = mg1( lambda, TMP, C )
 
-E1 = 1 / mu;
-E2 = 1 / (mu*mu);
+NUMERO_DE_AMOSTRAS = 1000000;
 
-WQ = (lambda * E2) / (2*(1-lambda*E1));
-LQ = lambda*WQ;
-W = WQ + E1;
-L = lambda*W;
+TemposDeServico = 1 : NUMERO_DE_AMOSTRAS;
+
+for i = 1: NUMERO_DE_AMOSTRAS
+  
+  do,
+      TamanhoPacote = round( exprnd( TMP ) );  % Tamanho do pacote em bytes
+  until ( TamanhoPacote > 48 && TamanhoPacote < 1500 );
+  
+  TemposDeServico(i) = TamanhoPacote / ( (C*1000*1000)/8 );
+end
+
+
+ES        = mean(TemposDeServico);    % E[S]   - Média dos tempos de serviço
+ESsquare  = ES*ES;                    % E[S]^2
+Var       = var(TemposDeServico);     % var[S]
+ES2       = Var + ESsquare;           % E[S^2] = var[S] + E[S]^2
+
+W = (lambda * ES2) / ( 2*(1-lambda*ES) ) + ES;
+WQ= W - ES;
+LQ= lambda * WQ;
+L = lambda * W;
+
+
+
+
+
