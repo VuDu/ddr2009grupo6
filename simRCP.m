@@ -56,7 +56,7 @@ function ret = simRCP( CriterioParagem )
     Caminhos= [ Caminhos; Caminho ];
   end;
   
- while(  sum( NodeState(:,3) ) < CriterioParagem ),
+ while(  sum( PacoteAceite ) < CriterioParagem ),
     
     % Ordenar os pacotes tempo de chegada ...
     [s, i] = sort( Pacotes(:,1) );
@@ -88,7 +88,7 @@ function ret = simRCP( CriterioParagem )
         enterQr = Qr5;
     end
     
-    [Q, Qr, STATE, Pacote, Caminho, NP, NR, Atraso ] = nodesim( NodeID, enterQ, enterQr, NodeState(NodeID, :),Pacotes(1,:), Caminhos(1,:), Tempo, 100000);
+    [Q, Qr, STATE, Pacote, Caminho, NP, NR, Atraso ] = nodesim( NodeID, enterQ, enterQr, NodeState(NodeID, :),Pacotes(1,:), Caminhos(1,:), Tempo, 10000);
     DelaySum( flowNumber ) = DelaySum( flowNumber ) + Atraso;
     if ( Caminhos(1,2) == 0 )
       % O pacote chegou ao destino
@@ -118,9 +118,9 @@ function ret = simRCP( CriterioParagem )
     % de entrada
     Pacotes = [ Pacotes(2:end,:);  Pacote;  NP];
     Caminhos= [ Caminhos(2:end,:); Caminho; NR];
-  end;
-  
+  end;  
   (Delay ./ PacoteAceite) * 1000
+ % (NodeState(:,5) ./ NodeState(:,3)) * 1000
   
   
   

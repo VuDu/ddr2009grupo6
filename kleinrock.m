@@ -25,7 +25,7 @@ CapacidadeLigacao = 10000000;  % bits/seg
 fluxos = [ 400, 400, 400, 400, 400, 400, 1000, 1000 ];  % pacotes/seg
 
 %  lambda
-lambda = [ 400, 400, 400, 400, 800, 800, 1000, 1000 ];  % pacotes/seg
+lambda = [ 400, 400, 800, 800, 400, 400, 1000, 1000 ];  % pacotes/seg
 
 %  mu
 mu = [ 0, 0, 0, 0, 0, 0, 0, 0 ];
@@ -33,21 +33,32 @@ for i = 1 : 8,
 	mu(i) = ((10000000 / 8) / TamMedPacote);  % pacotes/segundo
 end;
 
-%  L
-L = [  0, 0, 0, 0  ];
-for i = 1 : 8,
-	L(i) = lambda(i) / (mu(i) - lambda(i));  % pacotes/segundo
-end;
+% %  L
+% L = [  0, 0, 0, 0  ];
+% for i = 1 : 8,
+%   L(i) = lambda(i) / (mu(i) - lambda(i));  % pacotes/segundo
+% end;
+% 
+% %  Ws
+% Ws = [ 0, 0, 0, 0, 0, 0, 0, 0 ];
+% for i = 1 : 4,
+%     Ws(i) = ( 1 / ( mu(i) - lambda(i) ) ) * 1000;  % mseg
+% end;
+% Ws(5) = ( ( 1 / ( mu(3) - lambda(3) ) ) + ( 1 / ( mu(5) - lambda(5) ) ) ) * 1000;  % mseg
+% Ws(6) = ( ( 1 / ( mu(6) - lambda(6) ) ) + ( 1 / ( mu(4) - lambda(4) ) ) ) * 1000;  % mseg
+% for i = 7 : 8,
+%     Ws(i) = ( 1 / ( mu(i) - lambda(i) ) ) * 1000;  % mseg
+% end;
 
-%  Ws
-Ws = [ 0, 0, 0, 0, 0, 0, 0, 0 ];
-for i = 1 : 4,
-    Ws(i) = ( 1 / ( mu(i) - lambda(i) ) ) * 1000;  % mseg
-end;
-Ws(5) = ( ( 1 / ( mu(3) - lambda(3) ) ) + ( 1 / ( mu(5) - lambda(5) ) ) ) * 1000;  % mseg
-Ws(6) = ( ( 1 / ( mu(6) - lambda(6) ) ) + ( 1 / ( mu(4) - lambda(4) ) ) ) * 1000;  % mseg
-for i = 7 : 8,
-    Ws(i) = ( 1 / ( mu(i) - lambda(i) ) ) * 1000;  % mseg
-end;
+% Fluxo 1
+Ws(1) = ( 1/( mu(1) - lambda(1) ) )*1000;
+Ws(2) = ( 1/( mu(2) - lambda(2) ) )*1000; 
+Ws(3) = ( 1/( mu(3) - lambda(3) ) )*1000; 
+Ws(4) = ( 1/( mu(4) - lambda(4) ) )*1000;
+Ws(5) = ( 1/( mu(1) - lambda(1) ) + 1/( mu(5) - lambda(5) ) )*1000; 
+Ws(6) = ( 1/( mu(6) - lambda(6) ) + 1/( mu(2) - lambda(2) ) )*1000; 
+Ws(7) = ( 1/( mu(7) - lambda(7) ) )* 1000;
+Ws(8) = ( 1/( mu(8) - lambda(8) ) )* 1000;
+
 
 

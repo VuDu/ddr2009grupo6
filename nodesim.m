@@ -27,13 +27,15 @@ function [ nQUEUE, nQroute ,nSTATE, OUTPACKET, OUTROUTE, NP, NR , DElAY ] = node
 
   SISTEMA_LIVRE   = 0;
   SISTEMA_OCUPADO = 1;
+  
+  GENERATE = 0;
 
   % Variaveis do sistema
   CapacidadeDaLigacao = ( 10 * 1000 * 1000 ) / 8;   % Capacidade da ligação em bytes por segundo 
   TamanhoDaFilaDeEspera = TFE;                      % Tamanho da fila de espera em bytes
 
   [Tempo, Estado, PacotesAceites, PacotesPerdidos, Atrasos, AtrasoMaximo, OcupacaoFila, IOcupacao, Instante ] = splitstate(STATE);
-
+  
   FilaDeEspera = QUEUE;
   FilaDeEsperaCaminho = QROUTE;
   
@@ -55,31 +57,40 @@ function [ nQUEUE, nQroute ,nSTATE, OUTPACKET, OUTROUTE, NP, NR , DElAY ] = node
   
     if ( Chegada < Partida )
       % -- Temos uma chegada -- % 
+
       if ( ROUTE(2) != 0)
         TempoUltimoInstante = Tempo;
         Tempo = Chegada;
 
         IOcupacao = IOcupacao + OcupacaoFila * (Tempo - TempoUltimoInstante);
                                   
-        % -- Gerar um novo pacote caso este tenha acabado de ser gerado -- % 
+        % -- Gerar um novo pacote caso o pacote que entrou tenha origem neste nó -- % 
+        GENERATE = 0;
         if ( PACKET(3) < 0 )
           PACKET(3) = - PACKET(3);
           [NP, NR] = getflow( Tempo, PACKET(3) );
+          GENERATE = 1;
         end
 
-        if ( Estado == SISTEMA_LIVRE )
-          Estado = SISTEMA_OCUPADO;
+        if ( bitand(Estado, bitshift(1, abs(ROUTE(2)) ) ) == SISTEMA_LIVRE )
+          Estado = bitor(Estado, bitshift(1, abs(ROUTE(2)) ) );
           Instante = Tempo;
           Partida  = Tempo + ( PACKET(2) / CapacidadeDaLigacao );
-          OUTPACKET = [ Partida, PACKET(2), PACKET(3)];
+          OUTPACKET = [ Partida, PACKET(2), PACKET(3), PACKET(4) ];
           OUTROUTE  = ROUTE*-1; % passar para uma partida ... 
         else
           if ( (PACKET(2) + OcupacaoFila) > TamanhoDaFilaDeEspera  )
             PacotesPerdidos = PacotesPerdidos + 1;
           else
-            FilaDeEspera = [ FilaDeEspera ; [ Tempo, PACKET(2), PACKET(3) ]  ];
-            FilaDeEsperaCaminho = [FilaDeEsperaCaminho; ROUTE*-1 ];
-            OcupacaoFila = OcupacaoFila + PACKET(2);
+            if ( GENERATE == 1 )
+              FilaDeEspera = [ FilaDeEspera ; [ Tempo, PACKET(2), PACKET(3), Tempo ]  ];
+              FilaDeEsperaCaminho = [FilaDeEsperaCaminho; ROUTE*-1 ];
+              OcupacaoFila = OcupacaoFila + PACKET(2);
+            else
+              FilaDeEspera = [ [ Tempo, PACKET(2), PACKET(3), Tempo ]; FilaDeEspera ];
+              FilaDeEsperaCaminho = [ROUTE*-1; FilaDeEsperaCaminho ];
+              OcupacaoFila = OcupacaoFila + PACKET(2);
+            end
           end;
           OUTPACKET = []; OUTROUTE = []; % Pacote fica guardado na fila de espera...
         end; % If ( Estado == SISTEMA_LIVRE)
@@ -97,30 +108,65 @@ function [ nQUEUE, nQroute ,nSTATE, OUTPACKET, OUTROUTE, NP, NR , DElAY ] = node
 
       % Actualizar Atrasos e Atraso Máximo
       AtrasoActual = ( Tempo - Instante );
-      DElAY = AtrasoActual;
+      DElAY = ( Tempo - PACKET(4) );
       Atrasos = Atrasos + AtrasoActual;
 
       if ( AtrasoMaximo < AtrasoActual )
         AtrasoMaximo = AtrasoActual;
       end;
       PacotesAceites = PacotesAceites + 1;
-      OUTPACKET = PACKET;
+      OUTPACKET = [ Tempo, PACKET(2), PACKET(3), Tempo ];
       OUTROUTE  = [ ROUTE(2:end)*-1, 0 ];
 
       Partida = Inf;  % Retirar partida da Lista de Eventos
       if ( OcupacaoFila > 0 )
-        Instante = FilaDeEspera(1,1);
-        TamanhoPacote = FilaDeEspera(1,2);
-        FlowID = FilaDeEspera(1,3);
-        Partida  = Tempo + ( TamanhoPacote / CapacidadeDaLigacao );
-        FilaDeEspera = FilaDeEspera(2:end,:);
-        OcupacaoFila = OcupacaoFila - TamanhoPacote;
         
-        NP = [Partida, TamanhoPacote, FlowID ];
-        NR  = FilaDeEsperaCaminho(1, :);
-        FilaDeEsperaCaminho = FilaDeEsperaCaminho(2:end, :);
+        f = FilaDeEsperaCaminho(:,2) == ROUTE(2);
+        p = find( f );
+        if ( p  )
+          % Existem pacotes com direcção a ROUTE(2)
+          tmpQ = FilaDeEspera(p, :);
+          tmpQr= FilaDeEsperaCaminho(p, :);
+          
+          Instante = tmpQ(1,1);
+          TamanhoPacote = tmpQ(1,2);
+          FlowID = tmpQ(1,3);
+
+          Partida  = Tempo + ( TamanhoPacote / CapacidadeDaLigacao );
+          tmpQ = tmpQ(2:end,:);
+
+          OcupacaoFila = OcupacaoFila - TamanhoPacote;
+
+          NP = [Partida, TamanhoPacote, FlowID, Instante ];
+          NR  = tmpQr(1, :);
+          tmpQr = tmpQr(2:end, :);
+          
+          o = find( f == 0);
+          tmpQ = [ FilaDeEspera(o, :); tmpQ ];
+          tmpQr= [ FilaDeEsperaCaminho(o, :); tmpQr ];
+          
+          % Voltar a ordenar 
+          [s, i] = sort( tmpQ(:,1) );
+          FilaDeEspera = tmpQ(i,:);
+          FilaDeEsperaCaminho= tmpQr(i,:);
+        else
+          Estado = bitxor(Estado, bitshift(1, abs(ROUTE(2)) ) );
+        end
+        
+        % Instante = FilaDeEspera(1,1);
+        % TamanhoPacote = FilaDeEspera(1,2);
+        % FlowID = FilaDeEspera(1,3);
+        % 
+        % Partida  = Tempo + ( TamanhoPacote / CapacidadeDaLigacao );
+        % FilaDeEspera = FilaDeEspera(2:end,:);
+        % 
+        % OcupacaoFila = OcupacaoFila - TamanhoPacote;
+        % 
+        % NP = [Partida, TamanhoPacote, FlowID, Instante ];
+        % NR  = FilaDeEsperaCaminho(1, :);
+        % FilaDeEsperaCaminho = FilaDeEsperaCaminho(2:end, :);
       else
-        Estado = SISTEMA_LIVRE;
+        Estado = bitxor(Estado, bitshift(1, abs(ROUTE(2)) ) );
       end;
 
     end; % end ( Chegada < Partida )
