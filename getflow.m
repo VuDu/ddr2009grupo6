@@ -15,17 +15,17 @@ function [Packet, Route] = getflow( Tempo, flowNum )
   FlowPacektTCP(4) = 400;
   FlowPacektTCP(5) = 400;
   FlowPacektTCP(6) = 400;
-  FlowPacektTCP(7) = 600;
-  FlowPacektTCP(8) = 600;
+  FlowPacektTCP(7) = 1000;
+  FlowPacektTCP(8) = 1000;
 
-  FlowRoute( 1, : ) = [ 1, 2, 0 ];
-  FlowRoute( 2, : ) = [ 2, 1, 0 ];
-  FlowRoute( 3, : ) = [ 1, 4, 0 ];
-  FlowRoute( 4, : ) = [ 4, 1, 0 ];
-  FlowRoute( 5, : ) = [ 1, 4, 5 ];
-  FlowRoute( 6, : ) = [ 5, 4, 1 ];
-  FlowRoute( 7, : ) = [ 2, 3, 0 ];
-  FlowRoute( 8, : ) = [ 3, 2, 0 ];
+  FlowRoute( 1, : ) = [ -1, -2, 0 ];
+  FlowRoute( 2, : ) = [ -2, -1, 0 ];
+  FlowRoute( 3, : ) = [ -1, -4, 0 ];
+  FlowRoute( 4, : ) = [ -4, -1, 0 ];
+  FlowRoute( 5, : ) = [ -1, -4, -5 ];
+  FlowRoute( 6, : ) = [ -5, -4, -1 ];
+  FlowRoute( 7, : ) = [ -2, -3, 0 ];
+  FlowRoute( 8, : ) = [ -3, -2, 0 ];
   
   
   Chegada = Tempo + exprnd( 1 / FlowPacektTCP(flowNum) );
@@ -34,5 +34,5 @@ function [Packet, Route] = getflow( Tempo, flowNum )
       TamanhoPacote = round( exprnd( 600 ) );  % Tamanho do pacote em bytes
   until ( TamanhoPacote > 48 && TamanhoPacote < 1500 );
   
-  Packet = [ Chegada, TamanhoPacote, flowNum ];
+  Packet = [ Chegada, TamanhoPacote, -flowNum ];
   Route  = FlowRoute(flowNum, : );

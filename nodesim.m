@@ -20,7 +20,7 @@
 %
 %
 %%
-function [ nQUEUE, nSTATE, OUTPACKET, OUTROUTE ] = nodesim( NID, QUEUE, STATE, PACKET, ROUTE, TIME, TFE )
+function [ nQUEUE, nQroute ,nSTATE, OUTPACKET, OUTROUTE, NP, NR , DElAY ] = nodesim( NID, QUEUE, QROUTE, STATE, PACKET, ROUTE, TIME, TFE )
 
 
   % Constantes do sistema
@@ -29,48 +29,65 @@ function [ nQUEUE, nSTATE, OUTPACKET, OUTROUTE ] = nodesim( NID, QUEUE, STATE, P
   SISTEMA_OCUPADO = 1;
 
   % Variaveis do sistema
-  CapacidadeDaLigacao = ( CL * 1000 * 1000 ) / 8;   % Capacidade da ligação em bytes por segundo 
+  CapacidadeDaLigacao = ( 10 * 1000 * 1000 ) / 8;   % Capacidade da ligação em bytes por segundo 
   TamanhoDaFilaDeEspera = TFE;                      % Tamanho da fila de espera em bytes
-  TempoMedioChegadaPacotes = 1 / TCP;
 
-  % Variaveis de Estado do nó .. isto está mal..
-  [ Estado, PacotesAceites, PacotesPerdidos, Atrasos, AtrasoMaximo, OcupacaoFila, IOcupacao, Instante ] = STATE;
+  [Tempo, Estado, PacotesAceites, PacotesPerdidos, Atrasos, AtrasoMaximo, OcupacaoFila, IOcupacao, Instante ] = splitstate(STATE);
 
   FilaDeEspera = QUEUE;
+  FilaDeEsperaCaminho = QROUTE;
+  
+  DElAY = 0;
 
-  % -- variaveis temporais -- %
-  Tempo = TIME;
-
-  if ( PACKET == [] ) 
-    Chegada = Tempo;
+    
+  if ( ROUTE(1) <= 0 )
+    % Temos uma chegada...
+    Chegada = PACKET(1);
     Partida = Inf;
-  else
+  else   
+    % Temos uma partida...
     Chegada = Inf;
-    Partida = Tempo;
-  end if
+    Partida = PACKET(1);
+  end
 
-
-  % -- Ciclo da Simulacao -- %
-
+  NP = [];
+  NR = [];
+  
     if ( Chegada < Partida )
-      % -- Temos uma chegada -- %
-      TempoUltimoInstante = Tempo;
-      Tempo = Chegada;
+      % -- Temos uma chegada -- % 
+      if ( ROUTE(2) != 0)
+        TempoUltimoInstante = Tempo;
+        Tempo = Chegada;
 
-      IOcupacao = IOcupacao + OcupacaoFila * (Tempo - TempoUltimoInstante);
+        IOcupacao = IOcupacao + OcupacaoFila * (Tempo - TempoUltimoInstante);
+                                  
+        % -- Gerar um novo pacote caso este tenha acabado de ser gerado -- % 
+        if ( PACKET(3) < 0 )
+          PACKET(3) = - PACKET(3);
+          [NP, NR] = getflow( Tempo, PACKET(3) );
+        end
 
-      if ( Estado == SISTEMA_LIVRE )
-        Estado = SISTEMA_OCUPADO;
-        Instante = Tempo;
-        Partida  = Tempo + ( TamanhoPacote / CapacidadeDaLigacao );
-      else
-        if ( (TamanhoPacote + OcupacaoFila) > TamanhoDaFilaDeEspera  )
-          PacotesPerdidos = PacotesPerdidos + 1;
+        if ( Estado == SISTEMA_LIVRE )
+          Estado = SISTEMA_OCUPADO;
+          Instante = Tempo;
+          Partida  = Tempo + ( PACKET(2) / CapacidadeDaLigacao );
+          OUTPACKET = [ Partida, PACKET(2), PACKET(3)];
+          OUTROUTE  = ROUTE*-1; % passar para uma partida ... 
         else
-          FilaDeEspera = [ FilaDeEspera ; [ Tempo, TamanhoPacote ]  ];
-          OcupacaoFila = OcupacaoFila + TamanhoPacote;
-        end;
-      end;
+          if ( (PACKET(2) + OcupacaoFila) > TamanhoDaFilaDeEspera  )
+            PacotesPerdidos = PacotesPerdidos + 1;
+          else
+            FilaDeEspera = [ FilaDeEspera ; [ Tempo, PACKET(2), PACKET(3) ]  ];
+            FilaDeEsperaCaminho = [FilaDeEsperaCaminho; ROUTE*-1 ];
+            OcupacaoFila = OcupacaoFila + PACKET(2);
+          end;
+          OUTPACKET = []; OUTROUTE = []; % Pacote fica guardado na fila de espera...
+        end; % If ( Estado == SISTEMA_LIVRE)
+      else
+        % Chegou ao destino...
+        OUTPACKET = [];
+        OUTROUTE  = [];
+      end % IF Route(1) == 0
 
     else % else ( Chegada < Partida )
       % -- Temos uma Partida -- %
@@ -80,29 +97,35 @@ function [ nQUEUE, nSTATE, OUTPACKET, OUTROUTE ] = nodesim( NID, QUEUE, STATE, P
 
       % Actualizar Atrasos e Atraso Máximo
       AtrasoActual = ( Tempo - Instante );
+      DElAY = AtrasoActual;
       Atrasos = Atrasos + AtrasoActual;
 
       if ( AtrasoMaximo < AtrasoActual )
         AtrasoMaximo = AtrasoActual;
       end;
-
       PacotesAceites = PacotesAceites + 1;
-      if ( PacotesAceites >= NP )
-        break;  % Sair da Simulação
-      end;
+      OUTPACKET = PACKET;
+      OUTROUTE  = [ ROUTE(2:end)*-1, 0 ];
+
       Partida = Inf;  % Retirar partida da Lista de Eventos
       if ( OcupacaoFila > 0 )
         Instante = FilaDeEspera(1,1);
         TamanhoPacote = FilaDeEspera(1,2);
+        FlowID = FilaDeEspera(1,3);
         Partida  = Tempo + ( TamanhoPacote / CapacidadeDaLigacao );
         FilaDeEspera = FilaDeEspera(2:end,:);
-
         OcupacaoFila = OcupacaoFila - TamanhoPacote;
+        
+        NP = [Partida, TamanhoPacote, FlowID ];
+        NR  = FilaDeEsperaCaminho(1, :);
+        FilaDeEsperaCaminho = FilaDeEsperaCaminho(2:end, :);
       else
         Estado = SISTEMA_LIVRE;
       end;
 
     end; % end ( Chegada < Partida )
     
-    nSTATE = [ Estado, PacotesAceites, PacotesPerdidos, Atrasos, AtrasoMaximo, OcupacaoFila, IOcupacao, Instante ];
+    nSTATE = [Tempo, Estado, PacotesAceites, PacotesPerdidos, Atrasos, AtrasoMaximo, OcupacaoFila, IOcupacao, Instante];
     nQUEUE = FilaDeEspera;
+    nQroute= FilaDeEsperaCaminho;
+    
