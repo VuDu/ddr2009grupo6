@@ -6,7 +6,7 @@
 %
 %
 
-function ret = simRCP( CriterioParagem )
+function OM = simRCP( CriterioParagem )
 
 
 % Inicializar estado do nó !!!    
@@ -118,8 +118,9 @@ function ret = simRCP( CriterioParagem )
     % de entrada
     Pacotes = [ Pacotes(2:end,:);  Pacote;  NP];
     Caminhos= [ Caminhos(2:end,:); Caminho; NR];
-  end;  
-  (Delay ./ PacoteAceite) * 1000
+  end; 
+   
+  OM = (Delay ./ PacoteAceite) * 1000;
  % (NodeState(:,5) ./ NodeState(:,3)) * 1000
   
   

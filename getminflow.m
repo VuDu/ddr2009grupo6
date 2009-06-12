@@ -7,7 +7,7 @@
 %
 %
 
-function [Packet, Route] = getflow( Tempo, flowNum )
+function [Packet, Route] = getminflow( Tempo, flowNum )
 
   FlowPacektTCP(1) = 400;
   FlowPacektTCP(2) = 400;
@@ -22,8 +22,8 @@ function [Packet, Route] = getflow( Tempo, flowNum )
   FlowRoute( 2, : ) = [ -2, -1, -0, -0 ];
   FlowRoute( 3, : ) = [ -1, -4, -0, -0 ];
   FlowRoute( 4, : ) = [ -4, -1, -0, -0 ];
-  FlowRoute( 5, : ) = [ -1, -2, -3, -5 ];
-  FlowRoute( 6, : ) = [ -5, -3, -2, -1 ];
+  FlowRoute( 5, : ) = [ -1, -4, -5, -0 ];
+  FlowRoute( 6, : ) = [ -5, -4, -1, -0 ];
   FlowRoute( 7, : ) = [ -2, -3, -0, -0 ];
   FlowRoute( 8, : ) = [ -3, -2, -0, -0 ];
   

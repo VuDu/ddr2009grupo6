@@ -11,8 +11,10 @@
 % @parametros
 %
 %     QUEUE : Fila de espera do nó simulado.
+%     QROUTE: Fila de espera para caminhos do nó simulado.
 %     STATE : Estado interno do nó.
 %     PACKET: Pacote de entrada.
+%     ROUTE:  Caminho do pacote
 %     TIME  : Momento no tempo da simulação
 %     TFE : Tamanho da Fila de Espera ( em bytes )
 %

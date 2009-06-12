@@ -1,5 +1,8 @@
 
-%function [Tempo, Estado, PacotesAceites, PacotesPerdidos, Atrasos, AtrasoMaximo, OcupacaoFila, IOcupacao, Instante ] = splitstate( STATE )
+%
+% Função de ajuda...
+%
+
 
 function [Tempo, Estado, PacotesAceites, PacotesPerdidos, Atrasos, AtrasoMaximo, OcupacaoFila, IOcupacao, Instante] = splitstate(STATE)
   
