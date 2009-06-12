@@ -14,16 +14,11 @@
 %
 %%
 
-function [ Ws ] = kleinrock( )
+function [ Ws ] = kleinrockmin( )
 
 
 TamMedPacote = 600;  % bytes
 CapacidadeLigacao = 10000000;  % bits/seg
-
-%  lambda
-%lambda = [ 400, 400, 400, 400, 800, 800, 1000, 1000 ];  % pacotes/seg
-
-%lambda = [ 800, 800, 1400, 1400, 400, 400, 400, 400,  ];  % pacotes/seg
 
 lambda(1,2) = 400 + 400;
 lambda(2,1) = 400 + 400;

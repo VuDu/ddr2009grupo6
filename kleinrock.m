@@ -21,7 +21,7 @@ TamMedPacote = 600;  % bytes
 CapacidadeLigacao = 10000000;  % bits/seg
 
 %  lambda
-lambda = [ 400, 400, 400, 400, 400, 400, 1000, 1000 ];  % pacotes/seg
+lambda = [ 400, 400, 400, 400, 800, 800, 1000, 1000 ];  % pacotes/seg
 
 %  mu
 mu = [ 0, 0, 0, 0, 0, 0, 0, 0 ];
